@@ -1,6 +1,15 @@
 import { WhiteCard } from "../../components";
+import { useWeddingBoundStore } from "../../stores/wedding";
 
 export const WeddingInvitationPage = () => {
+  const firstName = useWeddingBoundStore((state) => state.firstName);
+  const lastName = useWeddingBoundStore((state) => state.lastName);
+  const setFirstName = useWeddingBoundStore((state) => state.setFirstName);
+  const setLastName = useWeddingBoundStore((state) => state.setLastName);
+
+  const guestCount = useWeddingBoundStore((state) => state.guestCount);
+  const setGuestCount = useWeddingBoundStore((state) => state.setGuestCount);
+
   return (
     <>
       <h1>Invitación de Boda</h1>
@@ -17,6 +26,8 @@ export const WeddingInvitationPage = () => {
                     Primer Nombre
                   </label>
                   <input
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
                     type="text"
                     name="firstName"
                     id="firstName"
@@ -30,6 +41,8 @@ export const WeddingInvitationPage = () => {
                     Apellido
                   </label>
                   <input
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                     type="text"
                     name="lastName"
                     id="lastName"
@@ -43,6 +56,8 @@ export const WeddingInvitationPage = () => {
                 ¿Cuántos invitados traerá?
               </label>
               <input
+                value={guestCount}
+                onChange={(e) => setGuestCount(+e.target.value)}
                 type="number"
                 name="guestNumber"
                 id="guestNumber"
