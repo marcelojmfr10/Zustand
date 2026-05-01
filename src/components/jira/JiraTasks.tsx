@@ -1,17 +1,72 @@
-import {
-  IoCheckmarkCircleOutline,
-  IoEllipsisHorizontalOutline,
-  IoReorderTwoOutline,
-} from "react-icons/io5";
+import { IoAddOutline, IoCheckmarkCircleOutline } from "react-icons/io5";
+import classNames from "classnames";
+import Swal from "sweetalert2";
+import { Task, TaskStatus } from "../../interfaces";
+import { SingleTask } from "./SingleTask";
+import { useTaskStore } from "../../stores";
+import { useState } from "react";
 
 interface Props {
   title: string;
-  value: "pending" | "in-progress" | "done";
+  tasks: Task[];
+  status: TaskStatus;
 }
 
-export const JiraTasks = ({ title }: Props) => {
+export const JiraTasks = ({ title, status, tasks }: Props) => {
+  const isDragging = useTaskStore((state) => !!state.draggingTaskId);
+  const onTaskDrop = useTaskStore((state) => state.onTaskDrop);
+  const addTask = useTaskStore((state) => state.addTask);
+
+  const [onDragOver, setOnDragOver] = useState(false);
+
+  const handleAddTask = async () => {
+    const { isConfirmed, value } = await Swal.fire({
+      title: "Nueva tarea",
+      input: "text",
+      inputLabel: "Título de la tarea",
+      inputPlaceholder: "Ingrese el nombre de la tarea",
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) {
+          return "Debe de ingresar un nombre para la tarea";
+        }
+      },
+    });
+
+    if (!isConfirmed) return;
+
+    addTask(value, status);
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setOnDragOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setOnDragOver(false);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setOnDragOver(false);
+    onTaskDrop(status);
+  };
+
   return (
-    <div className="!text-black relative flex flex-col rounded-[20px]  bg-white bg-clip-border shadow-3xl shadow-shadow-500  w-full !p-4 3xl:p-![18px]">
+    <div
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={classNames(
+        "!text-black border-4 relative flex flex-col rounded-[20px]  bg-white bg-clip-border shadow-3xl shadow-shadow-500  w-full !p-4 3xl:p-![18px]",
+        {
+          "border-blue-500 border-dotted": isDragging,
+          "border-green-500 border-dotted": isDragging && onDragOver,
+        },
+      )}
+    >
       {/* Task Header */}
       <div className="relative flex flex-row justify-between">
         <div className="flex items-center justify-center">
@@ -24,30 +79,16 @@ export const JiraTasks = ({ title }: Props) => {
           <h4 className="ml-4 text-xl font-bold text-navy-700">{title}</h4>
         </div>
 
-        <button>
-          <IoEllipsisHorizontalOutline />
+        <button onClick={handleAddTask}>
+          <IoAddOutline />
         </button>
       </div>
 
       {/* Task Items */}
       <div className="h-full w-full">
-        <div className="mt-5 flex items-center justify-between p-2">
-          <div className="flex items-center justify-center gap-2">
-            <p className="text-base font-bold text-navy-700">Tarea número 1</p>
-          </div>
-          <span className=" h-6 w-6 text-navy-700 cursor-pointer">
-            <IoReorderTwoOutline />
-          </span>
-        </div>
-
-        <div className="mt-5 flex items-center justify-between p-2">
-          <div className="flex items-center justify-center gap-2">
-            <p className="text-base font-bold text-navy-700">Tarea número 2</p>
-          </div>
-          <span className=" h-6 w-6 text-navy-700 cursor-pointer">
-            <IoReorderTwoOutline />
-          </span>
-        </div>
+        {tasks.map((task) => (
+          <SingleTask task={task} key={task.id} />
+        ))}
       </div>
     </div>
   );
