@@ -1,3 +1,4 @@
+import React from "react";
 import { WhiteCard } from "../../components";
 import { useWeddingBoundStore } from "../../stores/wedding";
 
@@ -10,6 +11,20 @@ export const WeddingInvitationPage = () => {
   const guestCount = useWeddingBoundStore((state) => state.guestCount);
   const setGuestCount = useWeddingBoundStore((state) => state.setGuestCount);
 
+  const eventYYYYMMDD = useWeddingBoundStore((state) => state.eventYYYYMMDD());
+  const eventHHMM = useWeddingBoundStore((state) => state.eventHHMM());
+  const setEventDate = useWeddingBoundStore((state) => state.setEventDate);
+  const setEventTime = useWeddingBoundStore((state) => state.setEventTime);
+  const eventDate = useWeddingBoundStore((state) => state.eventDate);
+
+  const isConfirmed = useWeddingBoundStore((state) => state.isConfirmed);
+  const setIsConfirmed = useWeddingBoundStore((state) => state.setIsConfirmed);
+
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log({ firstName, lastName, guestCount, eventDate, isConfirmed });
+  };
+
   return (
     <>
       <h1>Invitación de Boda</h1>
@@ -18,7 +33,7 @@ export const WeddingInvitationPage = () => {
 
       <WhiteCard className="flex items-center justify-center p-12">
         <div className="mx-auto w-full max-w-[550px]">
-          <form>
+          <form onSubmit={onSubmit}>
             <div className="-mx-3 flex flex-wrap">
               <div className="w-full px-3 sm:w-1/2">
                 <div className="mb-5">
@@ -73,7 +88,13 @@ export const WeddingInvitationPage = () => {
                   <label className="mb-3 block text-base font-medium text-[#07074D]">
                     Fecha de evento
                   </label>
-                  <input type="date" name="eventDate" id="eventDate" />
+                  <input
+                    value={eventYYYYMMDD}
+                    onChange={(e) => setEventDate(e.target.value)}
+                    type="date"
+                    name="eventDate"
+                    id="eventDate"
+                  />
                 </div>
               </div>
               <div className="w-full px-3 sm:w-1/2">
@@ -81,7 +102,13 @@ export const WeddingInvitationPage = () => {
                   <label className="mb-3 block text-base font-medium text-[#07074D]">
                     Hora del evento
                   </label>
-                  <input type="time" name="eventTime" id="eventTime" />
+                  <input
+                    value={eventHHMM}
+                    onChange={(e) => setEventTime(e.target.value)}
+                    type="time"
+                    name="eventTime"
+                    id="eventTime"
+                  />
                 </div>
               </div>
             </div>
@@ -93,6 +120,8 @@ export const WeddingInvitationPage = () => {
               <div className="flex items-center space-x-6">
                 <div className="flex items-center">
                   <input
+                    checked={isConfirmed}
+                    onChange={() => setIsConfirmed(true)}
                     type="radio"
                     name="isComing"
                     id="radioButton1"
@@ -104,6 +133,8 @@ export const WeddingInvitationPage = () => {
                 </div>
                 <div className="flex items-center">
                   <input
+                    checked={!isConfirmed}
+                    onChange={() => setIsConfirmed(false)}
                     type="radio"
                     name="isComing"
                     id="radioButton2"
